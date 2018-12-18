@@ -1,4 +1,75 @@
 
+var data = [
+  {name: 'George', ts: 'Feng', tp: '0.99', time: 'Programmer', id: '30'},
+  {name: 'Ted', ts: 'Smith', tp: 'Electrical Systems', time: 'Electrical Systems', id: '41'},
+];
+
+var grid = new FancyGrid({
+    renderTo: 'container',
+    width: 'fit',
+    height: 'fit',
+    title: 'myFancyGrid - ',
+    //subTitle: 'Sub Title',
+    defaults: {
+      type: 'string',
+      editable: false,
+      sortable: true
+    },
+
+    exporter:true,
+    tbar: [{
+        type: 'search',
+        width: 350,
+        emptyText: 'Search',
+        paramsMenu: true,
+        paramsText: 'Parameters'
+      },{
+        text: 'Export to Excel',
+        handler: function() {
+          this.exportToExcel();
+        }
+      }, {
+        text: 'Export to CSV',
+        handler: function() {
+          this.exportToCSV({
+            fileName: 'myCSV',
+            header: true,
+            all: true
+          });
+        }
+      }],
+
+    data: [],
+    columns: [{
+      index: 'name',
+      title: 'Name',
+      type: 'string',
+      width: 100
+    },{
+      index: 'ts',
+      title: 'Size',
+      type: 'string',
+      width: 100
+    },{
+      index: 'tp',
+      title: 'Price',
+      type: 'string',
+      width: 100
+    },{
+      index: 'time',
+      title: 'Time',
+      type: 'string',
+      width: 200
+    },{
+      index: 'id',
+      title: 'ID',
+      type: 'string',
+      width: 100
+    }]
+  });
+
+grid.setTitle('myFancyGrid -')
+
 function createHighcharts(data) {
   Highcharts.setOptions({
     lang: {
@@ -306,6 +377,12 @@ $(document).ready(function(){
         console.log('xxxxxxxxx time series data: ');
         console.log(timeseriesData[timeseriesData.length-1]);
         timeseriesChart.series[0].setData(Object.values(timeseriesData));
+
+        // fancy grid
+        console.log('xxxx fancy grid data: ');
+        console.log(grid.getData());
+        grid.setData(data);
+        grid.update(); // redraw
 
     });
 
