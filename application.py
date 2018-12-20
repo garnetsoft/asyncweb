@@ -36,7 +36,7 @@ query = '-25#`name`ts`tp`time`id#0!select from (trades lj `id xkey smTbl)'
 
 class RandomThread(Thread):
     def __init__(self):
-        self.delay = 1
+        self.delay = 10
         super(RandomThread, self).__init__()
 
     def randomNumberGenerator(self):
@@ -61,7 +61,7 @@ class RandomThread(Thread):
 class KdbThread(Thread):
     def __init__(self):
         self.seqnum = -1
-        self.delay = 5
+        self.delay = 10
         super(KdbThread, self).__init__()
 
     def updateUI(self):

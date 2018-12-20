@@ -4,6 +4,9 @@ var data = [
   {name: 'Ted', ts: 'Smith', tp: 'Electrical Systems', time: 'Electrical Systems', id: '41'},
 ];
 
+// global search params
+var searchFilter = null;
+
 var grid = new FancyGrid({
     renderTo: 'container',
     width: 'fit',
@@ -16,7 +19,18 @@ var grid = new FancyGrid({
       sortable: true
     },
 
+    events: [{
+        filter: function(grid, filters){
+            console.log('xxxx on filter: ');
+            // console.log(grid);
+            console.log(filters);
+            // console.log(filters.value);
+            searchFilter = filters;
+        }
+    }],
+
     exporter:true,
+
     tbar: [{
         type: 'search',
         width: 350,
@@ -28,7 +42,7 @@ var grid = new FancyGrid({
         handler: function() {
           this.exportToExcel();
         }
-      }, {
+      },{
         text: 'Export to CSV',
         handler: function() {
           this.exportToCSV({
@@ -380,8 +394,33 @@ $(document).ready(function(){
 
         // fancy grid
         console.log('xxxx fancy grid data: ');
-        console.log(grid.getData());
+        //console.log(grid.getData());
         grid.setData(data);
+
+        // apply searchFilter if any
+        console.log('xxxx global search filter: ');
+        console.log(searchFilter);
+
+        if ( typeof(searchFilter) != 'undefined' && searchFilter != null) {
+            console.log('xxxx global search filter.name: ');
+            console.log(Object.keys(searchFilter));
+            console.log(Object.values(searchFilter));
+
+            console.log(searchFilter["name"]["*"]);
+            //console.log(Object.values(searchFilter)[0]["*"]);
+            if (typeof(searchFilter["name"]["*"]) != 'undefined' && searchFilter["name"]["*"] != '')
+                grid.search(searchFilter["name"]["*"]);
+            else {
+                grid.clearFilter();
+                searchFilter = null;
+            }
+        }
+
+        getDataFiltered = grid.getDataFiltered();
+        console.log('xxxx fancy grid data filterd: ');
+        console.log(getDataFiltered);
+
+
         grid.update(); // redraw
 
     });
