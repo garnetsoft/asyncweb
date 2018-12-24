@@ -31,7 +31,7 @@ rdb = qconnection.QConnection(host='localhost', port=5001, pandas=True)
 rdb.open()
 print('connected to')
 print(rdb)
-query = '-25#`name`ts`tp`time`id#0!select from (trades lj `id xkey smTbl)'
+query = '`name`ts`tp`time`id#0!select from (trade lj `id xkey smTbl)'
 
 
 class RandomThread(Thread):
@@ -77,21 +77,21 @@ class KdbThread(Thread):
             json = data.to_json(orient='records', date_format='iso', date_unit='ms')
             print(json)
 
-            query2 = '0!select Size:sum ts, AvgPx: ts wavg tp  by name from 0!select from (trades lj `id xkey smTbl)'
+            query2 = '0!select Size:sum ts, AvgPx: ts wavg tp  by name from 0!select from (trade lj `id xkey smTbl)'
             print('query2: '+query2)
             chartdata = rdb.sync(query2)
             chartjson = chartdata.to_json(orient='columns')
             print(chartjson)
 
             #query3 = '`Time xasc `Time`Value#-20#0!update Time:time, Value:tp from select by 0D00:01 xbar time from trades'
-            query3 = '0!select Size:sum ts by name from 0!select from (trades lj `id xkey smTbl)'
+            query3 = '0!select Size:sum ts by name from 0!select from (trade lj `id xkey smTbl)'
             print('query3: ' + query3)
             piedata = rdb.sync(query3)
             piejson = piedata.to_json(orient='index', date_format='iso', date_unit='ms')
             print(piejson)
 
             query4 = '-20#select from trades where id=1'
-            query4 = '0!select by 0D00:05 xbar time from trades where id=1'
+            query4 = '0!select by 0D00:01 xbar time from trades where id=1'
             print('query4: ' + query4)
             timeseriesdata = rdb.sync(query4)
             timeseriesjson = timeseriesdata.to_json(orient='index', date_format='iso', date_unit='ms')

@@ -21,7 +21,7 @@ var grid = new FancyGrid({
 
     events: [{
         filter: function(grid, filters){
-            console.log('xxxx on filter: ');
+            console.log('xxxx on filter events: ');
             // console.log(grid);
             console.log(filters);
             // console.log(filters.value);
@@ -77,7 +77,7 @@ var grid = new FancyGrid({
     },{
       index: 'id',
       title: 'ID',
-      type: 'string',
+      type: 'number',
       width: 100
     }]
   });
@@ -110,7 +110,7 @@ function createHighcharts(data) {
       {
         // first yaxis
         title: {
-          text: "Size"
+          text: "Volume"
         }
       },
       {
@@ -124,7 +124,7 @@ function createHighcharts(data) {
     ],
     series: [
       {
-        name: "Size",
+        name: "Volume",
         color: "#0071A7",
         type: "column",
         data: data[1],
@@ -226,7 +226,8 @@ var dtTableChart =  Highcharts.chart("chart", {
     }
   });
 
-var liveChart = Highcharts.chart('livechart', {
+
+var pieChart = Highcharts.chart('piechart', {
 		chart: {
         type: 'pie'
     },
@@ -234,11 +235,12 @@ var liveChart = Highcharts.chart('livechart', {
     	enabled: false
     },
     title: {
-    	text: 'Fruits Distribution'
+    	text: 'FilledQty by Markets -'
     },
     series: [{
-        name: 'Fruits',
-        data: [['Apple',89], ['Orange',71], ['Banana',16], ['Grapes',12], ['Others',14]]
+        name: 'sym',
+        //data: [['Apple',89], ['Orange',71], ['Banana',16], ['Grapes',12], ['Others',14]]
+        data: []
     }]
 });
 
@@ -265,7 +267,11 @@ var timeseriesChart = Highcharts.chart('timeseries', {
     },
     yAxis: {
         title: {
-            text: 'Value'
+            text: 'price'
+        },
+        opposite:true,
+        labels:{
+            x:-15
         },
         plotLines: [{
             value: 0,
@@ -278,47 +284,22 @@ var timeseriesChart = Highcharts.chart('timeseries', {
         pointFormat: '{point.x:%Y-%m-%d %H:%M:%S}<br/>{point.y:.2f}'
     },
     legend: {
-        enabled: false
+        enabled: true
     },
     exporting: {
-        enabled: false
+        enabled: true
     },
     series: [{
-        name: 'Time series data',
+        name: 'Timeseries `tick (1-minute)',
         data: []
     }]
 });
+
 
 $(document).ready(function(){
     //connect to the socket server.
     var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
     var numbers_received = [];
-
-    var myData = [{
-        "name":"name00",
-        "ts":"name00",
-        "tp":"name00",
-        "time":"name00",
-        "id":"name00",
-    }];
-
-    var data_header = [
-            {data:'name'},
-            {data:'ts'},
-            {data:'tp'},
-            {data:'time'},
-            {data:'id'},
-        ];
-
-    // define DataTable()
-    var table = $('#dt-table').dataTable({
-        "paging": true,
-        data: [],
-        columns: data_header
-    });
-
-    //var myChart = createHighcharts();
-    //var liveChart = createChart();
 
     //receive details from server
     socket.on('newnumber', function(msg) {
@@ -330,67 +311,15 @@ $(document).ready(function(){
         numbers_received.push(msg.number);
         numbers_string = '';
         for (var i = 0; i < numbers_received.length; i++){
-            numbers_string = numbers_string + '<p>' + numbers_received[i].toString() + '</p>';
+            numbers_string = numbers_string + '[' + numbers_received[i].toString() + ']';
         }
+
         // $('#log').html(numbers_string);
         $('#seqnum').html(msg.number);
 
         //$('#log').html(msg.data);
         data = JSON.parse(msg.data);
         //console.log(data);
-
-        $('#dt-table').dataTable().fnClearTable();
-        $('#dt-table').dataTable().fnAddData(data);
-
-        // create chart
-        chartdata = JSON.parse(msg.chartdata);
-        console.log(chartdata);
-
-        const dataArray = [];
-        dataArray.push(Object.values(chartdata['name']), Object.values(chartdata['Size']), Object.values(chartdata['AvgPx']));
-
-        dtTableChart.xAxis[0].setCategories(Object.values(chartdata['name']));
-        dtTableChart.series[0].setData(Object.values(chartdata['Size']));
-        dtTableChart.series[1].setData(Object.values(chartdata['AvgPx']));
-
-
-        // update series data instead of recreate everything
-        piejson = JSON.parse(msg.piedata);
-        console.log('piejson xxx');
-//        console.log(piejson);
-//        console.log(Object.keys(piejson));
-//        console.log(Object.values(piejson));
-
-        const dataPie = [];
-        dataPie.push(Object.values(piejson));
-        liveChart.setTitle({text: "Live Kdb updates - FillQty"});
-        console.log(dataPie);
-        //console.log(Object.keys(dataPie));
-        //console.log(Object.values(dataPie));
-        console.log('111111: '+Object.values(dataPie));
-        console.log('222222: '+(Object.values(dataPie)).length);
-
-        var seriesData = [];
-        Object.values(dataPie).forEach(function(element) {
-            for (var j=0; j<element.length; j++) {
-                seriesData.push(Object.values(element[j]));
-            }
-        });
-        console.log(seriesData);
-        liveChart.series[0].setData(seriesData, true);
-
-        var timeseriesData = [];
-        timeseriesJson = JSON.parse(msg.timeseries);
-        //console.log(timeseriesJson);
-        Object.values(timeseriesJson).forEach(function(element) {
-            timeseriesData.push({
-                x: new Date(element['time']),
-                y: element['tp']
-            })
-        });
-        console.log('xxxxxxxxx time series data: ');
-        console.log(timeseriesData[timeseriesData.length-1]);
-        timeseriesChart.series[0].setData(Object.values(timeseriesData));
 
         // fancy grid
         console.log('xxxx fancy grid data: ');
@@ -415,13 +344,96 @@ $(document).ready(function(){
                 searchFilter = null;
             }
         }
+        grid.update(); // redraw
 
         getDataFiltered = grid.getDataFiltered();
+        console.log('xxxx global search filter: ');
+        console.log(searchFilter);
         console.log('xxxx fancy grid data filterd: ');
         console.log(getDataFiltered);
 
+        // use filtered data for other charts' update!!!
+        filteredData = [];
+        if (typeof(getDataFiltered) != undefined && getDataFiltered != null) {
+            console.log('xxxxxxxxxxxxxxxx DEBUG xxxxxxxxxxxxx');
+            console.log(typeof(getDataFiltered));
+            console.log(getDataFiltered);
+            console.log(getDataFiltered.length);
+            console.log(Object.keys(getDataFiltered));
+            console.log(Object.values(getDataFiltered));
 
-        grid.update(); // redraw
+            console.log(Object.values(getDataFiltered)[0].data);
+
+            // define the data for each chart and apply them individually.  HOW TO MAKE THIS AS GENERIC AS POSSIBLE??
+            var pieData = [];
+            Object.values(getDataFiltered).forEach(function(element) {
+                filteredData.push(element.data);
+
+                pieData.push([element.data.name, element.data.ts]);
+            });
+            console.log('xxxxxxxxx XXXX - filteredData:')
+            console.log(filteredData);
+
+            console.log(pieData);
+            pieChart.series[0].setData(pieData, true);
+
+            console.log('================ DEBUG ============');
+        }
+
+
+        // create chart
+        chartdata = JSON.parse(msg.chartdata);
+        //console.log(chartdata);
+
+        const dataArray = [];
+        dataArray.push(Object.values(chartdata['name']), Object.values(chartdata['Size']), Object.values(chartdata['AvgPx']));
+
+        dtTableChart.xAxis[0].setCategories(Object.values(chartdata['name']));
+        dtTableChart.series[0].setData(Object.values(chartdata['Size']));
+        dtTableChart.series[1].setData(Object.values(chartdata['AvgPx']));
+
+
+        // update series data instead of recreate everything
+        piejson = JSON.parse(msg.piedata);
+        //console.log('piejson xxx');
+//        console.log(piejson);
+//        console.log(Object.keys(piejson));
+//        console.log(Object.values(piejson));
+
+        const dataPie = [];
+        dataPie.push(Object.values(piejson));
+        pieChart.setTitle({text: "Live Kdb updates - FillQty"});
+        //console.log(dataPie);
+        //console.log(Object.keys(dataPie));
+        //console.log(Object.values(dataPie));
+        //console.log('111111: '+Object.values(dataPie));
+        //console.log('222222: '+(Object.values(dataPie)).length);
+
+        var seriesData = [];
+        Object.values(dataPie).forEach(function(element) {
+            for (var j=0; j<element.length; j++) {
+                seriesData.push(Object.values(element[j]));
+            }
+        });
+        console.log('xxxx pie seriesData: ')
+        console.log(seriesData);
+        // pieChart.series[0].setData(seriesData, true);
+
+
+
+        var timeseriesData = [];
+        timeseriesJson = JSON.parse(msg.timeseries);
+        //console.log(timeseriesJson);
+        Object.values(timeseriesJson).forEach(function(element) {
+            timeseriesData.push({
+                x: new Date(element['time']),
+                y: element['tp']
+            })
+        });
+        //console.log('xxxxxxxxx time series data: ');
+        //console.log(timeseriesData[timeseriesData.length-1]);
+        timeseriesChart.series[0].setData(Object.values(timeseriesData));
+
 
     });
 

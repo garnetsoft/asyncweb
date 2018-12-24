@@ -16,6 +16,7 @@
 
 </head>
 <body>
+<!--
 <div class="container">
   <div class="jumbotron">
     <h1>Asynchronous Flask Communication</h1>
@@ -23,36 +24,21 @@
     <p>Details <a href='https://www.shanelynn.ie/asynchronous-updates-to-a-webpage-with-flask-and-socket-io/' target='_blank'>here.</a></p>
   </div>
 </div>
+https://divtable.com/table-styler/
+-->
+
+<p><h3>seqnum: <div id="seqnum"></div></h3></p>
+
+<table>
+    <tr>
+        <td style="width:530px"><div id="chart"></div></td>
+        <td width="width:600px"><div id="piechart"></div></td>
+    </tr>
+</table>
 
 <div id="container"></div>
 
-<!--
-<form id="emit_data" action="/fromUI">
-  First name:<br>
-  <input type="text" name="firstname" value="Mickey"><br>
-  Last name:<br>
-  <input type="text" name="lastname" value="Mouse"><br><br>
-  <input type="submit" value="Submit">
-</form>
--->
-
-<div class="container" id="content">
-    <div class="row">
-        <p>Asynchronous page updates will appear here:</p>
-        <p><h3>seqnum: </h3><div id="seqnum"></div></p>
-
-        <div id="log" class="container">
-            <table id="dt-table">
-                <thead><tr><th>name</th><th>size</th><th>price</th><th>time</th><th>id</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div id="chart"></div>
-        <div id="livechart"></div>
-
-        <div id="timeseries" style="height: 400px; min-width: 310px"></div>
-    </div>
-</div>
+<div id="timeseries" style="height: 400px; min-width: 310px"></div>
 
 </body>
     <script src="static/js/application.js"></script>
