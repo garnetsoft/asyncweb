@@ -366,16 +366,33 @@ $(document).ready(function(){
 
             // define the data for each chart and apply them individually.  HOW TO MAKE THIS AS GENERIC AS POSSIBLE??
             var pieData = [];
+            var chartDataX = [], chartDataSeries0 = [], chartDataSeries1 = [];
+
             Object.values(getDataFiltered).forEach(function(element) {
                 filteredData.push(element.data);
-
                 pieData.push([element.data.name, element.data.ts]);
+
+                // x,y0,y1 charts
+                chartDataX.push(element.data.name);
+                chartDataSeries0.push(element.data.ts);
+                chartDataSeries1.push(element.data.tp);
             });
             console.log('xxxxxxxxx XXXX - filteredData:')
             console.log(filteredData);
 
+            console.log('xxxxxxxxx XXXX - pieData:')
             console.log(pieData);
             pieChart.series[0].setData(pieData, true);
+
+            console.log('xxxxxxxxx XXXX - charDataX:')
+            console.log(chartDataX);
+            console.log(chartDataSeries0);
+            console.log(chartDataSeries1);
+
+            // use filtered data
+            dtTableChart.xAxis[0].setCategories(chartDataX);
+            dtTableChart.series[0].setData(chartDataSeries0);
+            dtTableChart.series[1].setData(chartDataSeries1);
 
             console.log('================ DEBUG ============');
         }
@@ -385,12 +402,11 @@ $(document).ready(function(){
         chartdata = JSON.parse(msg.chartdata);
         //console.log(chartdata);
 
-        const dataArray = [];
-        dataArray.push(Object.values(chartdata['name']), Object.values(chartdata['Size']), Object.values(chartdata['AvgPx']));
-
-        dtTableChart.xAxis[0].setCategories(Object.values(chartdata['name']));
-        dtTableChart.series[0].setData(Object.values(chartdata['Size']));
-        dtTableChart.series[1].setData(Object.values(chartdata['AvgPx']));
+//        const dataArray = [];
+//        dataArray.push(Object.values(chartdata['name']), Object.values(chartdata['Size']), Object.values(chartdata['AvgPx']));
+//        dtTableChart.xAxis[0].setCategories(Object.values(chartdata['name']));
+//        dtTableChart.series[0].setData(Object.values(chartdata['Size']));
+//        dtTableChart.series[1].setData(Object.values(chartdata['AvgPx']));
 
 
         // update series data instead of recreate everything
