@@ -84,79 +84,11 @@ var grid = new FancyGrid({
 
 grid.setTitle('myFancyGrid -')
 
-function createHighcharts(data) {
-  Highcharts.setOptions({
+Highcharts.setOptions({
     lang: {
       thousandsSep: ","
     }
-  });
-
-  Highcharts.chart("chart", {
-    title: {
-      text: "DataTables to Highcharts"
-    },
-    subtitle: {
-      text: "Data from KDB+"
-    },
-    xAxis: [
-      {
-        categories: data[0],
-        labels: {
-          rotation: -45
-        }
-      }
-    ],
-    yAxis: [
-      {
-        // first yaxis
-        title: {
-          text: "Volume"
-        }
-      },
-      {
-        // secondary yaxis
-        title: {
-          text: "AvgPx"
-        },
-        min: 0,
-        opposite: true
-      }
-    ],
-    series: [
-      {
-        name: "Volume",
-        color: "#0071A7",
-        type: "column",
-        data: data[1],
-        tooltip: {
-          valueSuffix: " M"
-        }
-      },
-      {
-        name: "AvgPx",
-        color: "#FF404E",
-        type: "spline",
-        data: data[2],
-        yAxis: 1
-      }
-    ],
-    tooltip: {
-      shared: true
-    },
-    legend: {
-      backgroundColor: "#ececec",
-      shadow: true
-    },
-    credits: {
-      enabled: false
-    },
-    noData: {
-      style: {
-        fontSize: "16px"
-      }
-    }
-  });
-};
+});
 
 
 // Good code:
@@ -237,6 +169,19 @@ var pieChart = Highcharts.chart('piechart', {
     title: {
     	text: 'FilledQty by Markets -'
     },
+    plotOptions: {
+        pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+                enabled: true,
+                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                style: {
+                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                }
+            }
+        }
+    },
     series: [{
         name: 'sym',
         //data: [['Apple',89], ['Orange',71], ['Banana',16], ['Grapes',12], ['Others',14]]
@@ -246,42 +191,56 @@ var pieChart = Highcharts.chart('piechart', {
 
 
 // timeseries chart
-var timeseriesChart = Highcharts.chart('timeseries', {
-    chart: {
-        type: 'spline',
-        animation: Highcharts.svg, // don't animate in old IE
-        marginRight: 10,
-        events: { }
-    },
+// just create 2 timeseries (y) with same x
+var timeseriesChart2 = Highcharts.chart('timeseries2', {
 
+    title: {
+        text: 'Live Tick Data - Price/Volume 2 '
+    },
     time: {
         useUTC: false
     },
-
-    title: {
-        text: 'Live Tick Data - '
-    },
-    xAxis: {
+    xAxis: [
+      {
         type: 'datetime',
-        tickPixelInterval: 150
-    },
-    yAxis: {
+        tickPixelInterval: 5
+      }
+    ],
+    yAxis: [{
+        // Primary yAxis
+        labels: {
+            format: '{value} °C',
+            style: {
+                color: Highcharts.getOptions().colors[1]
+            }
+        },
         title: {
-            text: 'price'
+            text: 'volume',
+            style: {
+                color: Highcharts.getOptions().colors[1]
+            }
+        }
+    }, {
+        // Secondary yAxis
+        title: {
+            text: 'price',
+            style: {
+                color: Highcharts.getOptions().colors[0]
+            }
         },
-        opposite:true,
-        labels:{
-            x:-15
+        labels: {
+            format: '{value} mm',
+            style: {
+                color: Highcharts.getOptions().colors[0]
+            }
         },
-        plotLines: [{
-            value: 0,
-            width: 1,
-            color: '#808080'
-        }]
-    },
+        opposite: true
+    }],
+
     tooltip: {
-        headerFormat: '<b>{series.name}</b><br/>',
-        pointFormat: '{point.x:%Y-%m-%d %H:%M:%S}<br/>{point.y:.2f}'
+        //headerFormat: '<b>{series.name}</b><br/>',
+        //pointFormat: '{point.x:%Y-%m-%d %H:%M}<br/>{point.y:.2f}<br/>{point}'
+        shared: true
     },
     legend: {
         enabled: true
@@ -290,10 +249,93 @@ var timeseriesChart = Highcharts.chart('timeseries', {
         enabled: true
     },
     series: [{
-        name: 'Timeseries `tick (1-minute)',
-        data: []
+        name: 'volume',
+        type: 'column',
+        yAxis: 0,
+        data: [],
+        tooltip: {
+            valueSuffix: ' lots'
+        }
+    },{
+        name: 'price',
+        type: 'spline',
+        yAxis: 1,
+        data:[],
+        tooltip: {
+            valueSuffix: ' last px'
+        }
     }]
 });
+
+
+var timeSeriesChart =  Highcharts.chart("timeseries", {
+    chart: {
+        zoomType: 'xy'
+    },
+    title: {
+      text: "price volume real-time chart"
+    },
+    subtitle: {
+      text: "Data from KDB+"
+    },
+    xAxis: [{
+        categories: [],
+        labels: {
+          rotation: -45
+        },
+        crosshair: true
+    }],
+    yAxis: [
+      {
+        // first yaxis
+        title: {
+          text: "volume"
+        }
+      },
+      {
+        // secondary yaxis
+        title: {
+          text: "price"
+        },
+        min: 0,
+        opposite: true
+      }
+    ],
+
+    series: [
+      {
+        name: "volume",
+        color: "#0071A7",
+        type: "column",
+        data: [],
+        tooltip: {
+          valueSuffix: " M"
+        }
+      },
+      {
+        name: "price",
+        color: "#FF404E",
+        type: "spline",
+        data: [],
+        yAxis: 1
+      }
+    ],
+    tooltip: {
+      shared: true
+    },
+    legend: {
+      backgroundColor: "#ececec",
+      shadow: true
+    },
+    credits: {
+      enabled: false
+    },
+    noData: {
+      style: {
+        fontSize: "16px"
+      }
+    }
+  });
 
 
 $(document).ready(function(){
@@ -303,7 +345,8 @@ $(document).ready(function(){
 
     //receive details from server
     socket.on('newnumber', function(msg) {
-        console.log("Received number: " + msg.number);
+        console.log("seqnum: " + msg.number);
+
         //maintain a list of ten numbers
         if (numbers_received.length >= 10){
             numbers_received.shift()
@@ -317,14 +360,13 @@ $(document).ready(function(){
         // $('#log').html(numbers_string);
         $('#seqnum').html(msg.number);
 
-        //$('#log').html(msg.data);
         data = JSON.parse(msg.data);
         //console.log(data);
 
-        // fancy grid
+        // fancy grid table
         console.log('xxxx fancy grid data: ');
-        //console.log(grid.getData());
         grid.setData(data);
+        grid.update(); // redraw
 
         // apply searchFilter if any
         console.log('xxxx global search filter: ');
@@ -344,11 +386,9 @@ $(document).ready(function(){
                 searchFilter = null;
             }
         }
-        grid.update(); // redraw
 
+        // date table with filter
         getDataFiltered = grid.getDataFiltered();
-        console.log('xxxx global search filter: ');
-        console.log(searchFilter);
         console.log('xxxx fancy grid data filterd: ');
         console.log(getDataFiltered);
 
@@ -370,19 +410,18 @@ $(document).ready(function(){
 
             Object.values(getDataFiltered).forEach(function(element) {
                 filteredData.push(element.data);
-                pieData.push([element.data.name, element.data.ts]);
 
                 // x,y0,y1 charts
                 chartDataX.push(element.data.name);
                 chartDataSeries0.push(element.data.ts);
                 chartDataSeries1.push(element.data.tp);
+
+                // update pieData
+                pieData.push([element.data.name, element.data.ts]);
+
             });
             console.log('xxxxxxxxx XXXX - filteredData:')
             console.log(filteredData);
-
-            console.log('xxxxxxxxx XXXX - pieData:')
-            console.log(pieData);
-            pieChart.series[0].setData(pieData, true);
 
             console.log('xxxxxxxxx XXXX - charDataX:')
             console.log(chartDataX);
@@ -393,28 +432,32 @@ $(document).ready(function(){
             dtTableChart.xAxis[0].setCategories(chartDataX);
             dtTableChart.series[0].setData(chartDataSeries0);
             dtTableChart.series[1].setData(chartDataSeries1);
+            dtTableChart.update();
+
+            console.log('xxxxxxxxx XXXX - pieData:')
+            console.log(pieData);
+            pieChart.series[0].setData(pieData, true);
+            pieChart.update();
 
             console.log('================ DEBUG ============');
         }
 
-
-        // create chart
+        // create x->y0/y1 chart
         chartdata = JSON.parse(msg.chartdata);
         //console.log(chartdata);
 
-//        const dataArray = [];
-//        dataArray.push(Object.values(chartdata['name']), Object.values(chartdata['Size']), Object.values(chartdata['AvgPx']));
-//        dtTableChart.xAxis[0].setCategories(Object.values(chartdata['name']));
-//        dtTableChart.series[0].setData(Object.values(chartdata['Size']));
-//        dtTableChart.series[1].setData(Object.values(chartdata['AvgPx']));
+        const dataArray = [];
+        dataArray.push(Object.values(chartdata['name']), Object.values(chartdata['Size']), Object.values(chartdata['AvgPx']));
 
+        dtTableChart.xAxis[0].setCategories(Object.values(chartdata['name']));
+        dtTableChart.series[0].setData(Object.values(chartdata['Size']));
+        dtTableChart.series[1].setData(Object.values(chartdata['AvgPx']));
+        dtTableChart.update();
 
         // update series data instead of recreate everything
         piejson = JSON.parse(msg.piedata);
         //console.log('piejson xxx');
-//        console.log(piejson);
-//        console.log(Object.keys(piejson));
-//        console.log(Object.values(piejson));
+        // console.log(piejson);
 
         const dataPie = [];
         dataPie.push(Object.values(piejson));
@@ -433,22 +476,44 @@ $(document).ready(function(){
         });
         console.log('xxxx pie seriesData: ')
         console.log(seriesData);
-        // pieChart.series[0].setData(seriesData, true);
+        pieChart.series[0].setData(seriesData, true);
 
-
-
-        var timeseriesData = [];
+        // time series data
         timeseriesJson = JSON.parse(msg.timeseries);
-        //console.log(timeseriesJson);
-        Object.values(timeseriesJson).forEach(function(element) {
-            timeseriesData.push({
+        console.log('xxxxxxxxx timeseriesJson data: ');
+        console.log(timeseriesJson);
+
+        //timeSeriesChart.xAxis[0].setCategories(Object.values(timeseriesJson['time']));
+        timeSeriesChart.series[0].setData(Object.values(timeseriesJson['volume']));
+        timeSeriesChart.series[1].setData(Object.values(timeseriesJson['price']));
+        timeSeriesChart.update();
+
+        var  timeseriesJson2 = JSON.parse(msg.timeseries2);
+        var timeseriesDataY0 = [];
+        var timeseriesDataY1 = [];
+
+        Object.values(timeseriesJson2).forEach(function(element) {
+            timeseriesDataY0.push({
                 x: new Date(element['time']),
-                y: element['tp']
-            })
+                y: element['volume']
+            });
+
+            timeseriesDataY1.push({
+                x: new Date(element['time']),
+                y: element['price']
+            });
+
         });
-        //console.log('xxxxxxxxx time series data: ');
-        //console.log(timeseriesData[timeseriesData.length-1]);
-        timeseriesChart.series[0].setData(Object.values(timeseriesData));
+
+        //timeseriesDataY0.push(Object.values(new Date(timeseriesJson['time'])), Object.values(timeseriesJson['volume']));
+        //timeseriesDataY1.push(Object.values(new Date(timeseriesJson['time'])), Object.values(timeseriesJson['price']));
+
+        console.log('xxxxxxxxx timeseries Y0,Y1: ')
+        console.log(timeseriesDataY1);
+
+        timeseriesChart2.series[0].setData(timeseriesDataY0);
+        timeseriesChart2.series[1].setData(timeseriesDataY1);
+        timeseriesChart2.update();
 
 
     });

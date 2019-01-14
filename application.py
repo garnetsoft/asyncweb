@@ -33,31 +33,6 @@ print('connected to')
 print(rdb)
 query = '`name`ts`tp`time`id#0!select from (trade lj `id xkey smTbl)'
 
-
-class RandomThread(Thread):
-    def __init__(self):
-        self.delay = 10
-        super(RandomThread, self).__init__()
-
-    def randomNumberGenerator(self):
-        """
-        Generate a random number every 1 second and emit to a socketio instance (broadcast)
-        Ideally to be run in a separate thread?
-        """
-        #infinite loop of magical random numbers
-        print("Making random numbers")
-        while not thread_stop_event.isSet():
-            number = round(random()*10, 3)
-            print(number)
-            #socketio.emit('newnumber', {'number': number}, namespace='/test')
-
-            # export to json file via url
-
-            sleep(self.delay)
-
-    def run(self):
-        self.randomNumberGenerator()
-
 class KdbThread(Thread):
     def __init__(self):
         self.seqnum = -1
@@ -91,13 +66,22 @@ class KdbThread(Thread):
             print(piejson)
 
             query4 = '-20#select from trades where id=1'
-            query4 = '0!select by 0D00:01 xbar time from trades where id=1'
+            query4 = '-20#0!select volume:sum ts, price:last tp by 0D00:01 xbar time from trades where id=1 '
             print('query4: ' + query4)
             timeseriesdata = rdb.sync(query4)
-            timeseriesjson = timeseriesdata.to_json(orient='index', date_format='iso', date_unit='ms')
+            #timeseriesjson = timeseriesdata.to_json(orient='index', date_format='iso', date_unit='ms')
+            timeseriesjson = timeseriesdata.to_json(orient='columns', date_format='iso', date_unit='ms')
             print(timeseriesjson)
 
-            socketio.emit('newnumber', {'number': self.seqnum, 'data': json, 'chartdata': chartjson, 'piedata': piejson, 'timeseries': timeseriesjson}
+            query5 = '0!select volume:sum ts, price:last tp by 0D00:01 xbar time from trades where id=1 '
+            print('query5: ' + query5)
+            timeseriesdata2 = rdb.sync(query5)
+            timeseriesjson2 = timeseriesdata2.to_json(orient='index', date_format='iso', date_unit='ms')
+            print(timeseriesjson2)
+
+            socketio.emit('newnumber', {'number': self.seqnum, 'data': json, 'chartdata': chartjson, 'piedata': piejson
+                , 'timeseries': timeseriesjson
+                , 'timeseries2': timeseriesjson2}
                           , namespace='/test')
             sleep(self.delay)
 
