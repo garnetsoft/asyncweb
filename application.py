@@ -6,22 +6,36 @@ Updated 15th December 2018
 """
 
 # Start with a basic flask app webpage.
+import flask
 from flask_socketio import SocketIO, emit
 from flask import Flask, render_template, url_for, copy_current_request_context
 from random import random
 from time import sleep
 from threading import Thread, Event
 from qpython import qconnection
+import os
+
+import dash
+from dash.dependencies import Input, Output
+import dash_core_components as dcc
+import dash_html_components as html
 
 
 __author__ = 'gf'
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-app.config['DEBUG'] = True
+#app = Flask(__name__)
+#app.config['SECRET_KEY'] = 'secret!'
+#app.config['DEBUG'] = True
+
+server = flask.Flask('app')
+server.secret_key = os.environ.get('secret_key', 'secret')
+
+#app = dash.Dash('app', server=server)
+#app.scripts.config.serve_locally = False
+#dcc._js_dist[0]['external_url'] = 'https://cdn.plot.ly/plotly-basic-latest.min.js'
 
 #turn the flask app into a socketio app
-socketio = SocketIO(app)
+socketio = SocketIO(server)
 
 #random number Generator Thread
 thread = Thread()
@@ -29,7 +43,7 @@ thread_stop_event = Event()
 
 rdb = qconnection.QConnection(host='localhost', port=5001, pandas=True)
 rdb.open()
-print('connected to')
+print('connected to Kdb service: ')
 print(rdb)
 query = '`name`ts`tp`time`id#0!select from (trade lj `id xkey smTbl)'
 
@@ -89,7 +103,7 @@ class KdbThread(Thread):
     def run(self):
         self.updateUI()
 
-@app.route('/')
+@server.route('/')
 def index():
     #only by sending this page first will the client be connected to the socketio instance
     return render_template('index.html')
@@ -111,7 +125,7 @@ def test_disconnect():
     print('Client disconnected')
 
 # processing UI actions
-@app.route('/getjsondata')
+@server.route('/getjsondata')
 def getJsonData():
     print('....from UI action received.')
     query3 = '`Time xasc `Time`Value#-20#0!update Time:time, Value:tp from select by 0D00:01 xbar time from trades'
@@ -124,4 +138,7 @@ def getJsonData():
 
 
 if __name__ == '__main__':
-    socketio.run(app)
+    #socketio.run(app)
+    # start the UI thread
+    socketio.run(server);
+    #app.run_server();

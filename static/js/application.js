@@ -452,7 +452,7 @@ $(document).ready(function(){
         dtTableChart.xAxis[0].setCategories(Object.values(chartdata['name']));
         dtTableChart.series[0].setData(Object.values(chartdata['Size']));
         dtTableChart.series[1].setData(Object.values(chartdata['AvgPx']));
-        dtTableChart.update();
+        //dtTableChart.update();
 
         // update series data instead of recreate everything
         piejson = JSON.parse(msg.piedata);
@@ -486,7 +486,7 @@ $(document).ready(function(){
         //timeSeriesChart.xAxis[0].setCategories(Object.values(timeseriesJson['time']));
         timeSeriesChart.series[0].setData(Object.values(timeseriesJson['volume']));
         timeSeriesChart.series[1].setData(Object.values(timeseriesJson['price']));
-        timeSeriesChart.update();
+        //timeSeriesChart.update();
 
         var  timeseriesJson2 = JSON.parse(msg.timeseries2);
         var timeseriesDataY0 = [];
@@ -513,7 +513,7 @@ $(document).ready(function(){
 
         timeseriesChart2.series[0].setData(timeseriesDataY0);
         timeseriesChart2.series[1].setData(timeseriesDataY1);
-        timeseriesChart2.update();
+        //timeseriesChart2.update();
 
 
     });
